@@ -56,13 +56,13 @@ jobs:
       - name: 🚀 Run Skills
         run: |
           if [ -n "${{ github.event.inputs.skill }}" ]; then
-            python -m src.runner --skill "${{ github.event.inputs.skill }}" --backend "${{ github.event.inputs.backend || 'antigravity' }}"
+            python -m src.runner run --skill "${{ github.event.inputs.skill }}" --backend "${{ github.event.inputs.backend || 'gemini' }}"
           else
-            python -m src.runner --all-scheduled
+            python -m src.runner run --all-scheduled
           fi
 
       - name: 📊 Generate Index
-        run: python -m src.runner --generate-index
+        run: python -m src.runner run --generate-index
 
       - name: 📤 Upload Artifacts
         uses: actions/upload-artifact@v4
