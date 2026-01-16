@@ -23,6 +23,11 @@ on:
           - openai
         default: gemini
 
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
 env:
   PYTHON_VERSION: '3.11'
 
