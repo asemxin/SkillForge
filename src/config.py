@@ -24,7 +24,7 @@ class Settings(BaseSettings):
 
     # Default AI Backend
     default_backend: Literal["claude", "gemini", "openai", "antigravity"] = Field(
-        default="claude", description="默认使用的 AI 后端"
+        default="gemini", description="默认使用的 AI 后端"
     )
 
     # AI Model Settings

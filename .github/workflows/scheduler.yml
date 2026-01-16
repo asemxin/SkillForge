@@ -21,7 +21,7 @@ on:
           - claude
           - gemini
           - openai
-        default: antigravity
+        default: gemini
 
 env:
   PYTHON_VERSION: '3.11'

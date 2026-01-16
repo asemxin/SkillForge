@@ -24,7 +24,7 @@ class WeiboTrendingSkill(BaseSkill):
     name = "weibo_trending"
     description = "获取并分析微博热搜榜，生成深度洞察报告"
     version = "1.0.0"
-    default_backend = "antigravity"
+    default_backend = "gemini"
     schedule = "0 */6 * * *"  # 每6小时运行一次
     tags = ["social", "trending", "analysis"]
 
