@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} - SkillForge{% endblock %}
+
+{% block content %}
+<article class="report">
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-badge">
+                <span class="badge-icon">📊</span>
+                <span class="badge-text">{{ skill_name }}</span>
+            </div>
+            <h1 class="hero-title">{{ title }}</h1>
+            <p class="hero-meta">
+                <span class="meta-item">
+                    <span class="meta-icon">📅</span>
+                    {{ report_date }}
+                </span>
+                <span class="meta-divider">•</span>
+                <span class="meta-item">
+                    <span class="meta-icon">⏱️</span>
+                    执行耗时 {{ duration }}
+                </span>
+                <span class="meta-divider">•</span>
+                <span class="meta-item">
+                    <span class="meta-icon">🤖</span>
+                    {{ backend }}
+                </span>
+            </p>
+        </div>
+    </section>
+
+    <!-- Summary Section -->
+    {% if summary %}
+    <section class="summary-section">
+        <div class="container">
+            <div class="summary-card">
+                <div class="summary-header">
+                    <h2>📌 核心洞察</h2>
+                </div>
+                <div class="summary-content markdown-body">
+                    {{ summary | safe }}
+                </div>
+            </div>
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- Topics Section -->
+    {% if topics %}
+    <section class="topics-section">
+        <div class="container">
+            <h2 class="section-title">🔥 热点详情</h2>
+            <div class="topics-grid">
+                {% for topic in topics %}
+                <div class="topic-card">
+                    <div class="topic-header">
+                        <span class="topic-rank">#{{ topic.rank }}</span>
+                        <div class="topic-badges">
+                            {% if topic.is_hot %}
+                            <span class="badge badge-hot">🔥 热</span>
+                            {% endif %}
+                            {% if topic.is_new %}
+                            <span class="badge badge-new">✨ 新</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <h3 class="topic-title">{{ topic.title }}</h3>
+                    <div class="topic-meta">
+                        <span class="topic-category">{{ topic.category or '综合' }}</span>
+                        <span class="topic-heat">🔥 {{ "{:,}".format(topic.hot_value) }}</span>
+                    </div>
+                    {% if topic.analysis %}
+                    <div class="topic-analysis">
+                        {% if topic.analysis.sentiment %}
+                        <div class="sentiment-badge sentiment-{{ topic.analysis.sentiment }}">
+                            {% if topic.analysis.sentiment == 'positive' %}😊 正面
+                            {% elif topic.analysis.sentiment == 'negative' %}😔 负面
+                            {% else %}😐 中性
+                            {% endif %}
+                        </div>
+                        {% endif %}
+
+                        {% if topic.analysis.background %}
+                        <div class="analysis-item">
+                            <h4>📖 背景</h4>
+                            <p>{{ topic.analysis.background }}</p>
+                        </div>
+                        {% endif %}
+
+                        {% if topic.analysis.hot_reason %}
+                        <div class="analysis-item">
+                            <h4>🎯 热度原因</h4>
+                            <p>{{ topic.analysis.hot_reason }}</p>
+                        </div>
+                        {% endif %}
+
+                        {% if topic.analysis.keywords %}
+                        <div class="analysis-keywords">
+                            {% for keyword in topic.analysis.keywords[:5] %}
+                            <span class="keyword-tag">#{{ keyword }}</span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- Stats Section -->
+    <section class="stats-section">
+        <div class="container">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span class="stat-value">{{ total_count }}</span>
+                    <span class="stat-label">热搜总数</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-value">{{ analyzed_count }}</span>
+                    <span class="stat-label">深度分析</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-value">{{ duration }}</span>
+                    <span class="stat-label">执行耗时</span>
+                </div>
+            </div>
+        </div>
+    </section>
+</article>
+{% endblock %}

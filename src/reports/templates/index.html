@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}SkillForge - 报告索引{% endblock %}
+
+{% block content %}
+<section class="index-hero">
+    <div class="container">
+        <h1 class="index-title">
+            <span class="title-icon">⚡</span>
+            SkillForge
+        </h1>
+        <p class="index-subtitle">云端自动化 AI Agent 平台</p>
+        <p class="index-description">
+            基于 GitHub Actions 的定时任务调度，支持多种 AI 后端，
+            自动执行数据分析、内容生成等 Skills，生成精美报告。
+        </p>
+    </div>
+</section>
+
+<section class="reports-section">
+    <div class="container">
+        <h2 class="section-title">📊 最新报告</h2>
+
+        {% if reports %}
+        <div class="reports-grid">
+            {% for report in reports %}
+            <a href="{{ report.url }}" class="report-card">
+                <div class="report-card-header">
+                    <span class="report-skill">{{ report.skill_name }}</span>
+                    <span class="report-date">{{ report.date }}</span>
+                </div>
+                <h3 class="report-title">{{ report.title }}</h3>
+                {% if report.summary %}
+                <p class="report-summary">{{ report.summary[:100] }}{% if report.summary|length > 100 %}...{% endif %}
+                </p>
+                {% endif %}
+                <div class="report-footer">
+                    <span class="view-link">查看报告 →</span>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <span class="empty-icon">📭</span>
+            <h3>暂无报告</h3>
+            <p>Skills 执行后会在此显示生成的报告</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<section class="skills-section">
+    <div class="container">
+        <h2 class="section-title">🧩 可用 Skills</h2>
+        <div class="skills-grid">
+            {% for skill in skills %}
+            <div class="skill-card">
+                <div class="skill-header">
+                    <h3 class="skill-name">{{ skill.name }}</h3>
+                    {% if skill.schedule %}
+                    <span class="skill-schedule" title="调度表达式: {{ skill.schedule }}">⏰ 定时</span>
+                    {% endif %}
+                </div>
+                <p class="skill-description">{{ skill.description }}</p>
+                <div class="skill-tags">
+                    {% for tag in skill.tags %}
+                    <span class="skill-tag">{{ tag }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}
