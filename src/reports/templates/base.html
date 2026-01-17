@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,17 +11,18 @@
     <link rel="stylesheet" href="{{ static_url('style.css') }}">
     {% block head %}{% endblock %}
 </head>
+
 <body>
     <div class="page-wrapper">
         <header class="header">
             <div class="container">
-                <a href="/" class="logo">
+                <a href="index.html" class="logo">
                     <span class="logo-icon">⚡</span>
                     <span class="logo-text">SkillForge</span>
                 </a>
                 <nav class="nav">
-                    <a href="/">首页</a>
-                    <a href="/reports">报告</a>
+                    <a href="index.html">首页</a>
+                    <a href="index.html">报告</a>
                 </nav>
             </div>
         </header>
@@ -39,4 +41,5 @@
 
     {% block scripts %}{% endblock %}
 </body>
+
 </html>
