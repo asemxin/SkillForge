@@ -72,41 +72,108 @@ class WeiboTrendingSkill(BaseSkill):
             )
 
     async def _fetch_trending(self) -> list[dict]:
-        """获取微博热搜榜单"""
-        # 使用公开 API 或爬虫获取
-        # 这里使用一个模拟的实现，实际部署时需要替换为真实数据源
+        """获取微博热搜榜单，使用多个数据源"""
         
-        try:
-            async with httpx.AsyncClient(timeout=30) as client:
-                # 尝试从微博热搜 API 获取
-                # 注意：这是一个示例 URL，实际需要使用有效的数据源
-                response = await client.get(
-                    "https://weibo.com/ajax/side/hotSearch",
-                    headers={
-                        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-                        "Accept": "application/json",
-                    },
-                )
-                
-                if response.status_code == 200:
-                    data = response.json()
-                    realtime = data.get("data", {}).get("realtime", [])
+        # 数据源列表（按优先级排序）
+        sources = [
+            self._fetch_from_weibo_api,
+            self._fetch_from_tophub,
+            self._fetch_from_vvhan,
+        ]
+        
+        for fetch_func in sources:
+            try:
+                result = await fetch_func()
+                if result and len(result) >= 3:
+                    print(f"✅ 成功从 {fetch_func.__name__} 获取 {len(result)} 条热搜")
+                    return result
+            except Exception as e:
+                print(f"⚠️ {fetch_func.__name__} 失败: {e}")
+                continue
+        
+        # 所有数据源都失败，返回模拟数据
+        print("⚠️ 所有数据源失败，使用模拟数据")
+        return self._get_mock_data()
+    
+    async def _fetch_from_weibo_api(self) -> list[dict]:
+        """从微博官方 API 获取"""
+        async with httpx.AsyncClient(timeout=15) as client:
+            response = await client.get(
+                "https://weibo.com/ajax/side/hotSearch",
+                headers={
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+                    "Accept": "application/json",
+                    "Referer": "https://weibo.com/",
+                },
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                realtime = data.get("data", {}).get("realtime", [])
+                return [
+                    {
+                        "rank": i + 1,
+                        "title": item.get("word", ""),
+                        "hot_value": item.get("num", 0),
+                        "category": item.get("category", "综合"),
+                        "is_hot": item.get("is_hot", 0) == 1,
+                        "is_new": item.get("is_new", 0) == 1,
+                    }
+                    for i, item in enumerate(realtime)
+                    if item.get("word")
+                ]
+        return []
+    
+    async def _fetch_from_tophub(self) -> list[dict]:
+        """从今日热榜 API 获取"""
+        async with httpx.AsyncClient(timeout=15) as client:
+            response = await client.get(
+                "https://api.vvhan.com/api/hotlist/wbHot",
+                headers={"User-Agent": "SkillForge/1.0"},
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("success"):
+                    items = data.get("data", [])
                     return [
                         {
                             "rank": i + 1,
-                            "title": item.get("word", ""),
-                            "hot_value": item.get("num", 0),
-                            "category": item.get("category", ""),
-                            "is_hot": item.get("is_hot", 0) == 1,
-                            "is_new": item.get("is_new", 0) == 1,
+                            "title": item.get("title", ""),
+                            "hot_value": item.get("hot", 0),
+                            "category": "综合",
+                            "is_hot": i < 3,
+                            "is_new": False,
                         }
-                        for i, item in enumerate(realtime)
+                        for i, item in enumerate(items)
+                        if item.get("title")
                     ]
-        except Exception:
-            pass
-
-        # 如果 API 失败，返回模拟数据（用于测试）
-        return self._get_mock_data()
+        return []
+    
+    async def _fetch_from_vvhan(self) -> list[dict]:
+        """从韩小韩 API 获取"""
+        async with httpx.AsyncClient(timeout=15) as client:
+            response = await client.get(
+                "https://api.vvhan.com/api/hotlist?type=wbHot",
+                headers={"User-Agent": "SkillForge/1.0"},
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                items = data.get("data", [])
+                return [
+                    {
+                        "rank": i + 1,
+                        "title": item.get("title", ""),
+                        "hot_value": item.get("hot", 0) if isinstance(item.get("hot"), int) else 100000 - i * 1000,
+                        "category": "综合",
+                        "is_hot": i < 3,
+                        "is_new": False,
+                    }
+                    for i, item in enumerate(items)
+                    if item.get("title")
+                ]
+        return []
 
     def _get_mock_data(self) -> list[dict]:
         """获取模拟数据（用于测试）"""
